@@ -6,7 +6,7 @@ Created on Mon Sep 13 12:24:33 2021
 """
 
 import constants as c
-import training_preprocessing
+import preprocessing_pipeline
 import model_architecture
 import pandas as pd
 import tensorflow as tf
@@ -55,7 +55,7 @@ class Train:
         self.X_train, \
         self.y_train, \
         self.X_test, \
-        self.y_test = training_preprocessing.training_preprocess(self.df)
+        self.y_test = preprocessing_pipeline.training_preprocess(self.df)
         self.model = model_architecture.create_model_architecture(self.X_train)
         
         callbacks = [tf.keras.callbacks.EarlyStopping(patience=10,verbose=1, restore_best_weights=True)]
