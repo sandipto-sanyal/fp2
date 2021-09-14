@@ -24,7 +24,6 @@ echo "Training local ML model"
 PACKAGE_PATH=./trainer
 
 export EPOCHS=10
-export EVAL_STEPS=100
 export DF_PATH=gs://foundation_project2/training_folder/zomato.csv
 
 gcloud ai-platform local train \
