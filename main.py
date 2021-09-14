@@ -16,7 +16,6 @@
 import logging
 
 from flask import Flask, request
-from train import Train
 import constants as c
 import traceback
 
