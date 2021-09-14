@@ -27,7 +27,7 @@ export EPOCHS=10
 export DF_PATH=gs://foundation_project2/training_folder/zomato.csv
 
 gcloud ai-platform local train \
-        --module-name=trainer.task \
+        --module-name=trainer.train \
         --package-path=${PACKAGE_PATH} \
         -- \
         --df-path="$DF_PATH" \
