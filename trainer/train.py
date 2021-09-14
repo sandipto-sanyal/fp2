@@ -31,17 +31,21 @@ class Train:
         self.epochs = epochs
         self.job_dir = job_dir
         self.version = 'v{}'.format(datetime.now().strftime('%Y%m%d%H%M%S'))
-#         self.create_directories()
+        if self.job_dir[0:2] != 'gs':
+            # if we are using local paths
+            self.create_directories()
         
     
     def create_directories(self):
         try:
             os.mkdir(self.job_dir)
             os.mkdir(os.path.join(self.job_dir,c.transformer_folder))
+            os.mkdir(os.path.join(self.job_dir,c.transformer_folder,self.version))
         except FileExistsError:
             shutil.rmtree(self.job_dir)
             os.mkdir(self.job_dir)
             os.mkdir(os.path.join(self.job_dir,c.transformer_folder))
+            os.mkdir(os.path.join(self.job_dir,c.transformer_folder,self.version))
             
         
     def train(self):
@@ -200,5 +204,6 @@ if __name__ == '__main__':
     tr.train()
     tr.export_binaries()
     tr.evaluate()
-    tr.insert_into_bq()
+    if args.job_dir[0:2] == 'gs':
+        tr.insert_into_bq()
 #     tr.deploy_model()
