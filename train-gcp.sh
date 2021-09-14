@@ -26,6 +26,7 @@ PACKAGE_PATH=trainer
 
 export EPOCHS=10
 export DF_PATH=gs://foundation_project2/training_folder/zomato.csv
+JOBDIR=gs://foundation_project2/bin_files
 
 REGION="us-central1" # choose a gcp region from https://cloud.google.com/ml engine/docs/tensorflow/regions
 TIER="BASIC" # BASIC | BASIC_GPU | STANDARD_1 | PREMIUM_1
@@ -33,8 +34,6 @@ MODEL_NAME="foodrecommender" # change to your model name
 
 CURRENT_DATE=`date +%Y%m%d_%H%M%S`
 JOB_NAME=train_${MODEL_NAME}_${TIER}_${CURRENT_DATE}
-JOBDIR=gs://foundation_project2/
-
 gcloud ai-platform jobs submit training ${JOB_NAME} \
         --python-version=3.7 \
         --runtime-version=2.3 \
