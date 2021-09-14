@@ -35,3 +35,6 @@ framework = 'TENSORFLOW'
 region = 'us-central1'
 machine_type = 'n1-standard-2'
 website_path = 'https://console.cloud.google.com/ai-platform/models?'
+
+# bigquery paths
+table_id='sandipto-project.foodrecommender.model_version'

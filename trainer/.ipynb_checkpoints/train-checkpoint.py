@@ -18,6 +18,7 @@ from datetime import datetime
 import shutil
 import argparse
 from tensorflow.python.lib.io import file_io
+from google.cloud import bigquery
 
 
 
@@ -29,6 +30,7 @@ class Train:
         self.df = pd.read_csv(df_path)
         self.epochs = epochs
         self.job_dir = job_dir
+        self.version = 'v{}'.format(datetime.now().strftime('%Y%m%d%H%M%S'))
 #         self.create_directories()
         
     
@@ -83,7 +85,7 @@ class Train:
         # transformers
         ## save the count vectorizer's vocabularies
         for cv_col in c.cv_cols:
-            with file_io.FileIO(os.path.join(self.job_dir,c.transformer_folder,cv_col),'wb') as f:
+            with file_io.FileIO(os.path.join(self.job_dir,c.transformer_folder,self.version,cv_col),'wb') as f:
                 pkl.dump(self.dict_of_transformers[cv_col].vocabulary_, f)
                 # remove the element
                 self.dict_of_transformers.pop(cv_col)
@@ -91,14 +93,14 @@ class Train:
         ## for the rest of the transformers save the transformer
         key_transformer_list = list(self.dict_of_transformers.items())
         for key, transformer in key_transformer_list:
-            with file_io.FileIO(os.path.join(self.job_dir,c.transformer_folder,key),'wb') as f:
+            with file_io.FileIO(os.path.join(self.job_dir,c.transformer_folder, self.version,key),'wb') as f:
                 pkl.dump(transformer,f)
                 # remove the element
                 self.dict_of_transformers.pop(key)
-        print('Transformers saved at: {}'.format(os.path.join(self.job_dir,c.transformer_folder)))
+        print('Transformers saved at: {}'.format(os.path.join(self.job_dir,c.transformer_folder, self.version)))
         # model
-        self.model.save(os.path.join(self.job_dir,c.model_path))
-        print('Model saved successful at: {}'.format(os.path.join(self.job_dir,c.model_path)))
+        self.model.save(os.path.join(self.job_dir,c.model_path, self.version))
+        print('Model saved successful at: {}'.format(os.path.join(self.job_dir,c.model_path, self.version)))
     
     def evaluate(self):
         '''
@@ -112,21 +114,27 @@ class Train:
         y_pred = self.model.predict(self.X_test).reshape(-1,)
         y_pred = np.round(y_pred,decimals=1)
         self.r2_score = r2_score(y_true=self.y_test,y_pred=y_pred)
+     
     
-    def upload_binaries(self):
-        '''
-        Uploads the model binaries
+    def insert_into_bq(self):
+        # Construct a BigQuery client object.
+        client = bigquery.Client()
 
-        Returns
-        -------
-        None.
+        # TODO(developer): Set table_id to the ID of table to append to.
+        # table_id = "your-project.your_dataset.your_table"
 
-        '''
-        command = 'gsutil -m cp -r {} {}'.format(self.job_dir, c.gcs_path)
-        os.system(command)
-        # delete intermediate files
-#         shutil.rmtree(self.job_dir)
-        
+        rows_to_insert = [
+            {u"version": self.version, u"r2_score": self.r2_score},
+        ]
+
+        errors = client.insert_rows_json(c.table_id, rows_to_insert)  # Make an API request.
+        if errors == []:
+            print("New rows have been added.")
+        else:
+            print("Encountered errors while inserting rows: {}".format(errors))
+    
+    
+    
     
     def deploy_model(self):
         '''
@@ -192,4 +200,5 @@ if __name__ == '__main__':
     tr.train()
     tr.export_binaries()
     tr.evaluate()
-    tr.deploy_model()
+    tr.insert_into_bq()
+#     tr.deploy_model()
