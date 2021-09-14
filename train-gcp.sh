@@ -24,7 +24,7 @@ echo "Training local ML model"
 
 PACKAGE_PATH=trainer
 
-export EPOCHS=10
+export EPOCHS=50
 export DF_PATH=gs://foundation_project2/training_folder/zomato.csv
 JOBDIR=gs://foundation_project2/bin_files
 
