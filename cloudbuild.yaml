@@ -2,6 +2,7 @@ steps:
   # set permission
   - name: 'bash'
     args: ['chmod','+x','train-gcp.sh']
-  # Run our bash script
-  - name: 'bash'
-    args: ['sh','train-gcp.sh']
+  # Run our bash script since this needs gcloud access we have to use the below name
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args: ['train-gcp.sh']
