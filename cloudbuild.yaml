@@ -1,4 +1,7 @@
 steps:
+  # set permission
+  - name: 'bash'
+    args: ['chmod','+x','train-gcp.sh']
   # Run our bash script
   - name: 'bash'
-    args: ['./train-gcp.sh']
+    args: ['train-gcp.sh']
