@@ -149,6 +149,7 @@ class Train:
                   f'--machine-type={c.machine_type} ' \
                   f'--description=r2_score={self.r2_score} ' \
                   '--max-nodes=1 --min-nodes=1'
+        print('Command:\n{}'.format(command))
         os.system(command)
         print('Check: {} for model version: {}'.format(c.website_path, self.version))
  
