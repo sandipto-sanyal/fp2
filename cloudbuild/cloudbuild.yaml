@@ -1,0 +1,4 @@
+steps:
+  # Deploy App
+  - name: 'gcr.io/cloud-builders/gcloud'   
+    args: ["app", "deploy"]
