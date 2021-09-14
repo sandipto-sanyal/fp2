@@ -24,9 +24,8 @@ test_size = 0.3
 epochs = 1
 
 # model export paths
-bin_files_path = './bin_files'
-model_path = './{}/model'.format(bin_files_path)
-transformer_folder = './{}/transformers'.format(bin_files_path)
+model_path = 'model'
+transformer_folder = 'transformers'
 gcs_path = 'gs://foundation_project2'
 
 # gcloud model deployment constants

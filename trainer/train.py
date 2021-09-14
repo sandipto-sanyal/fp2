@@ -17,25 +17,29 @@ import os
 from datetime import datetime
 import shutil
 import argparse
+from tensorflow.python.lib.io import file_io
 
 
 
 class Train:
     def __init__(self, df_path,
-                 epochs:int
+                 epochs:int,
+                 job_dir:str,
                  ):
         self.df = pd.read_csv(df_path)
         self.epochs = epochs
-        self.create_directories()
+        self.job_dir = job_dir
+#         self.create_directories()
+        
     
     def create_directories(self):
         try:
-            os.mkdir(c.bin_files_path)
-            os.mkdir(c.transformer_folder)
+            os.mkdir(self.job_dir)
+            os.mkdir(os.path.join(self.job_dir,c.transformer_folder))
         except FileExistsError:
-            shutil.rmtree(c.bin_files_path)
-            os.mkdir(c.bin_files_path)
-            os.mkdir(c.transformer_folder)
+            shutil.rmtree(self.job_dir)
+            os.mkdir(self.job_dir)
+            os.mkdir(os.path.join(self.job_dir,c.transformer_folder))
             
         
     def train(self):
@@ -79,7 +83,7 @@ class Train:
         # transformers
         ## save the count vectorizer's vocabularies
         for cv_col in c.cv_cols:
-            with open(os.path.join(c.transformer_folder,cv_col),'wb') as f:
+            with file_io.FileIO(os.path.join(self.job_dir,c.transformer_folder,cv_col),'wb') as f:
                 pkl.dump(self.dict_of_transformers[cv_col].vocabulary_, f)
                 # remove the element
                 self.dict_of_transformers.pop(cv_col)
@@ -87,13 +91,14 @@ class Train:
         ## for the rest of the transformers save the transformer
         key_transformer_list = list(self.dict_of_transformers.items())
         for key, transformer in key_transformer_list:
-            with open(os.path.join(c.transformer_folder,key),'wb') as f:
+            with file_io.FileIO(os.path.join(self.job_dir,c.transformer_folder,key),'wb') as f:
                 pkl.dump(transformer,f)
                 # remove the element
                 self.dict_of_transformers.pop(key)
+        print('Transformers saved at: {}'.format(os.path.join(self.job_dir,c.transformer_folder)))
         # model
-        self.model.save(c.model_path)
-        print('Save successful')
+        self.model.save(os.path.join(self.job_dir,c.model_path))
+        print('Model saved successful at: {}'.format(os.path.join(self.job_dir,c.model_path)))
     
     def evaluate(self):
         '''
@@ -117,10 +122,10 @@ class Train:
         None.
 
         '''
-        command = 'gsutil -m cp -r {} {}'.format(c.bin_files_path, c.gcs_path)
+        command = 'gsutil -m cp -r {} {}'.format(self.job_dir, c.gcs_path)
         os.system(command)
         # delete intermediate files
-        shutil.rmtree(c.bin_files_path)
+#         shutil.rmtree(self.job_dir)
         
     
     def deploy_model(self):
@@ -136,7 +141,7 @@ class Train:
         command = f'gcloud ai-platform versions create {self.version} ' \
                   f'--model={c.model_name} ' \
                    '--async ' \
-                  f'--origin={c.model_dir} ' \
+                  f'--origin={os.path.join(self.job_dir,c.model_path)} ' \
                   '--runtime-version=2.3 ' \
                   f'--framework={c.framework} ' \
                   '--python-version=3.7 ' \
@@ -155,6 +160,13 @@ def get_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--job-dir',
+        type=str,
+        required=True,
+        help='local or GCS location where model outputs to be stored '
+             )
+    
+    parser.add_argument(
         '--df-path',
         type=str,
         required=True,
@@ -172,9 +184,11 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    tr = Train(df_path=args.df_path, epochs=args.epochs)
+    tr = Train(df_path=args.df_path, 
+               epochs=args.epochs,
+               job_dir=args.job_dir,
+             )
     tr.train()
     tr.export_binaries()
     tr.evaluate()
-    tr.upload_binaries()
     tr.deploy_model()
