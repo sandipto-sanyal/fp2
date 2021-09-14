@@ -41,9 +41,8 @@ gcloud ai-platform jobs submit training ${JOB_NAME} \
         --region=${REGION} \
         --job-dir=$JOBDIR \
         --scale-tier=${TIER} \
-        --module-name=trainer.task \
+        --module-name=trainer.train \
         --package-path=${PACKAGE_PATH}  \
-        --stream-logs \
         -- \
         --df-path="$DF_PATH" \
         --epochs=$EPOCHS
