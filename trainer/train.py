@@ -6,7 +6,7 @@ Created on Mon Sep 13 12:24:33 2021
 """
 
 import constants as c
-import preprocessing_pipeline
+import training_preprocessing
 import model_architecture
 import pandas as pd
 import tensorflow as tf
@@ -16,6 +16,8 @@ import numpy as np
 import os
 from datetime import datetime
 import shutil
+import argparse
+
 
 
 class Train:
@@ -53,7 +55,7 @@ class Train:
         self.X_train, \
         self.y_train, \
         self.X_test, \
-        self.y_test = preprocessing_pipeline.training_preprocess(self.df)
+        self.y_test = training_preprocessing.training_preprocess(self.df)
         self.model = model_architecture.create_model_architecture(self.X_train)
         
         callbacks = [tf.keras.callbacks.EarlyStopping(patience=10,verbose=1, restore_best_weights=True)]
@@ -142,12 +144,35 @@ class Train:
                   f'--machine-type={c.machine_type} ' \
                   f'--description=r2_score={self.r2_score} ' \
                   '--max-nodes=1 --min-nodes=1'
-        pass
         os.system(command)
-  
+        print('Check: {} for model version: {}'.format(c.website_path, self.version))
+ 
+def get_args():
+    """Argument parser.
+
+    Returns:
+      Dictionary of arguments.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--df-path',
+        type=str,
+        required=True,
+        help='local or GCS location where training dataset is stored '
+             )
+    
+    parser.add_argument(
+        '--epochs',
+        type=int,
+        default=1,
+        help='number of times to go through the data, default=1')
+     
+    args, _ = parser.parse_known_args()
+    return args
 
 if __name__ == '__main__':
-    tr = Train(df_path='../datasets/Zomato Bangalore Restaurants Data/zomato.csv', epochs=2)
+    args = get_args()
+    tr = Train(df_path=args.df_path, epochs=args.epochs)
     tr.train()
     tr.export_binaries()
     tr.evaluate()
