@@ -4,4 +4,4 @@ steps:
     args: ['chmod','+x','train-gcp.sh']
   # Run our bash script
   - name: 'bash'
-    args: ['./train-gcp.sh']
+    args: ['sh','train-gcp.sh']
