@@ -31,5 +31,4 @@ gcloud ai-platform local train \
         --package-path=${PACKAGE_PATH} \
         -- \
         --df-path="$DF_PATH" \
-        --epochs=$EPOCHS \
-        --eval-steps=$EVAL_STEPS \
+        --epochs=$EPOCHS
