@@ -1,3 +1,2 @@
 # fp2
-Foundational Project 2 ISB AMPBA
-Don't push anything in main branch
+Prediction branch. Put only prediction routine here.
