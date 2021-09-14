@@ -5,9 +5,9 @@ Created on Mon Sep 13 12:24:33 2021
 @author: sandipto.sanyal
 """
 
-import constants as c
-import preprocessing_pipeline
-import model_architecture
+from . import constants as c
+from . import preprocessing_pipeline
+from . import model_architecture
 import pandas as pd
 import tensorflow as tf
 from sklearn.metrics import r2_score
