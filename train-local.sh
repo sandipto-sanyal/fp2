@@ -21,14 +21,14 @@ echo "Training local ML model"
 
 
 
-PACKAGE_PATH=./
+PACKAGE_PATH=trainer
 
 export EPOCHS=10
 export DF_PATH=gs://foundation_project2/training_folder/zomato.csv
 
 gcloud ai-platform local train \
-        --module-name=train \
         --package-path=${PACKAGE_PATH} \
+        --module-name=trainer.train \
         -- \
         --df-path="$DF_PATH" \
         --epochs=$EPOCHS
