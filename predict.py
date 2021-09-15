@@ -225,6 +225,7 @@ class Predict:
                                      instances=self.instances,
                                      version=self.model_version
                                      )
+        print('***** Response:\n',self.response)
         
     def get_predictions_with_tf_binaries(self):
         '''
@@ -238,11 +239,17 @@ class Predict:
         '''
         model_path = f'gs://{c.bucket_name}/{c.model_dir}/{self.model_version}'
         # download to bin_files
-        command = 'gsutil -m cp -r {} ./bin_files'.format(model_path)
+        command = 'gsutil cp -r {} ./bin_files'.format(model_path)
         os.system(command)
-        # model = tf.keras.models.load_model(blob.download_as_string())
-        # y_pred = model.predict(self.X_test)
-        pass
+        model = tf.keras.models.load_model('./bin_files/{}'.format(self.model_version))
+        y_pred = model.predict(self.X_test)
+        self.df['predicted_rating'] = y_pred
+        
+    def post_process(self):
+        '''
+        Perform post processing
+        '''
+        self.df = self.df.sort_values(by=['predicted_rating'], ascending=[False])
         
     
 
@@ -252,4 +259,8 @@ if __name__ == '__main__':
     pr.load_data()
     pr.convert_data_for_prediction_cloud()
     pr.get_predictions_with_tf_binaries()
+#     pr.get_predictions_cloud()
+    pr.post_process()
+#     pr.df.to_csv('./test.csv', index=False)
+    
     
