@@ -15,6 +15,7 @@ import tensorflow as tf
 import pickle as pkl
 import pandas as pd
 import os
+import shutil
 
 import constants as c
 import preprocessing_pipeline
@@ -244,6 +245,10 @@ class Predict:
         model = tf.keras.models.load_model('./bin_files/{}'.format(self.model_version))
         y_pred = model.predict(self.X_test)
         self.df['predicted_rating'] = y_pred
+        
+        # clean the drive
+        shutil.rmtree('./bin_files/{}'.format(self.model_version))
+        
         
     def post_process(self):
         '''
