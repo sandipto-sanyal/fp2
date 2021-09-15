@@ -36,7 +36,7 @@ def hello():
     """Return a friendly HTTP greeting."""
     return 'Welcome to Food Recommender'
 
-@app.route('/prediction',methods=['POST'])
+@app.route('/prediction',methods=['GET'])
 def prediction():
     '''
     Predicts on the ML algo

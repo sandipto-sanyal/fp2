@@ -6,5 +6,7 @@ scikit-learn==0.24.2
 numpy
 keras==2.4.3
 gcsfs
-google-python-cloud-debugger
+#google-python-cloud-debugger
+google-cloud-aiplatform
+oauth2client
 
