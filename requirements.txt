@@ -9,4 +9,6 @@ gcsfs
 #google-python-cloud-debugger
 google-cloud-aiplatform
 oauth2client
+google-api-python-client 
+google-auth-httplib2
 
