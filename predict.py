@@ -9,6 +9,7 @@ from oauth2client.client import GoogleCredentials
 from googleapiclient import discovery
 from googleapiclient import errors
 from google.cloud import storage
+from pathlib import Path
 
 from tensorflow.python.lib.io import file_io
 import tensorflow as tf
@@ -238,16 +239,26 @@ class Predict:
         None.
 
         '''
-        model_path = f'gs://{c.bucket_name}/{c.model_dir}/{self.model_version}'
-        # download to bin_files
-        command = 'gsutil cp -r {} ./bin_files'.format(model_path)
-        os.system(command)
-        model = tf.keras.models.load_model('./bin_files/{}'.format(self.model_version))
+        bucket_name = c.bucket_name
+        prefix = f'{c.model_dir}/{self.model_version}'
+        bucket = self.storage_client.get_bucket(bucket_name)
+        blobs = bucket.list_blobs(prefix=prefix)  # Get list of files
+        for blob in blobs:
+            if blob.name.endswith("/"):
+                continue
+            file_split = blob.name.split("/")
+            directory = "/".join(file_split[0:-1])
+            Path(directory).mkdir(parents=True, exist_ok=True)
+            blob.download_to_filename(blob.name) 
+        
+        final_model_path = './{}/{}'.format(c.model_dir,self.model_version)
+        print('Final model path:', final_model_path)
+        model = tf.keras.models.load_model(final_model_path)
         y_pred = model.predict(self.X_test)
         self.df['predicted_rating'] = y_pred
         
         # clean the drive
-        shutil.rmtree('./bin_files/{}'.format(self.model_version))
+        shutil.rmtree('./{}'.format(c.model_dir))
         
         
     def post_process(self):

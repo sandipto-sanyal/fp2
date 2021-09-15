@@ -23,7 +23,8 @@ output_cols = ['name',
                'address',
                'cuisines',
                'cost',
-               'menu_item'
+               'menu_item',
+               'listed_in_city'
                ]
 
 # gcloud model prediction constants
