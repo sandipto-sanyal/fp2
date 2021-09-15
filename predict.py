@@ -254,8 +254,9 @@ class Predict:
         '''
         Perform post processing
         '''
+        self.df = self.df[~self.df.menu_item.isna()]
         self.df = self.df.sort_values(by=['predicted_rating'], ascending=[False])
-        
+        self.df = self.df[c.output_cols]
     
 
 if __name__ == '__main__':
@@ -266,6 +267,6 @@ if __name__ == '__main__':
     pr.get_predictions_with_tf_binaries()
 #     pr.get_predictions_cloud()
     pr.post_process()
-#     pr.df.to_csv('./test.csv', index=False)
+    pr.df.to_csv('./test.csv', index=False)
     
     

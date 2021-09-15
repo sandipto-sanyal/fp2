@@ -19,6 +19,8 @@ from flask import Flask, request
 import constants as c
 import traceback
 
+from predict import Predict
+
 app = Flask(__name__)
 
 
@@ -47,7 +49,21 @@ def prediction():
 
     '''
     try:
-        return {'response':'Success'}, 200
+        model_version = request.args['model_version']
+        area_name = request.args['area_name']
+        local_predict = request.args['local_predict']
+        pr = Predict(model_version=model_version,area_name=area_name)
+        pr.open_pickle_files_cloud()
+        pr.load_data()
+        if local_predict == 'True':
+            pr.get_predictions_with_tf_binaries()
+            pr.post_process()
+            response = pr.df.to_dict('records')[0:5]
+        else:
+            response = 'cloud prediction not supported'
+            # pr.convert_data_for_prediction_cloud()
+            # pr.get_predictions_cloud()
+        return {'response': response}, 200
     except:
         exception_stack_trace = str(traceback.format_exc())
         return {'response':exception_stack_trace}, 500

@@ -17,6 +17,15 @@ numeric_cols = ['cost']
 y = ['rate']
 
 
+# output columns
+output_cols = ['name',
+               'predicted_rating',
+               'address',
+               'cuisines',
+               'cost',
+               'menu_item'
+               ]
+
 # gcloud model prediction constants
 project_id = 'sandipto-project'
 bucket_name = 'foundation_project2'
