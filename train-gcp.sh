@@ -42,6 +42,7 @@ gcloud ai-platform jobs submit training ${JOB_NAME} \
         --scale-tier=${TIER} \
         --module-name=trainer.train \
         --package-path=${PACKAGE_PATH}  \
+        --config hptuning_config.yaml \
         -- \
         --df-path="$DF_PATH" \
         --epochs=$EPOCHS
